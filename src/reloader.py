@@ -122,15 +122,22 @@ class Reloader(object):
         Runs watchdog process to monitor file changes and reload container
         """
         observer = Observer()
-        if self.reload_dirs:
-            for a_dir in self.reload_dirs:
-                observer.schedule(self.event_handler_factory(), a_dir, recursive=True)
-                observer.start()
-        else:
-            logger.error("Did not find any source code paths to monitor!!")
         try:
+            watchers = list()
+            monitored_paths = list()
+            started = False
             while True:
-                time.sleep(1)
+                if self.reload_dirs:
+                    for a_dir in self.reload_dirs:
+                        # if a_dir not in
+                        observer.schedule(self.event_handler_factory(), a_dir, recursive=True)
+                        if not started:
+                            observer.start()
+                            started = True
+                else:
+                    logger.error("Did not find any source code paths to monitor!!")
+
+                time.sleep(60)
         except KeyboardInterrupt:
             observer.stop()
         observer.join()
